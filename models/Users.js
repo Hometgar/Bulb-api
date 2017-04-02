@@ -5,7 +5,8 @@ const content = fs.readFileSync('./private/conf.json');
 const conf = JSON.parse(content)['db'];
 var Sequelize = require('sequelize');
 var db = new Sequelize(conf.database, conf.user, conf.password,{
-    "host": conf.host
+    "host": conf.host,
+    "port": conf.port
 });
 
 const model = db.define('user', {
@@ -70,6 +71,15 @@ module.exports = {
             })
             .catch((err)=>{
                 reject(err);
+            })
+        })
+    },
+    "addUser":function(user) {
+        return new Promise((resolve,reject) => {
+            model.create(user).then((elem) => {
+                resolve(elem);
+            }).catch((err) => {
+                reject(err)
             })
         })
     }

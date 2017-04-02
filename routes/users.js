@@ -42,8 +42,9 @@ router.post('/', function(req, res, next) {
     email = req.body.email;
     verifyEmail = req.body.verifyEmail;
     password = req.body.password;
+
     if(!pseudo || !email || !verifyEmail || !password){
-        res.status(400).json({
+        return res.status(400).json({
             error: true,
             errorInfo: "INVALID INFORMATIONS"
         })
@@ -67,6 +68,11 @@ router.post('/', function(req, res, next) {
                     pseudo : pseudo,
                     mail : email,
                     password : password
+                }).then((elem) => {
+                  res.status(201).json({
+                          error : false,
+                          users_id : elem.id
+                  })
                 })
             }
         })
