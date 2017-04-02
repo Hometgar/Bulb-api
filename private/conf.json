@@ -1,0 +1,11 @@
+{
+  "db": {
+    "host":"localhost",
+    "database":"bulb-api",
+    "user":"root",
+    "password":""
+  },
+  "valid-KEY":[
+
+  ]
+}
