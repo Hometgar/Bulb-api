@@ -2,17 +2,20 @@ var express = require('express');
 var router = express.Router();
 var model = require('../models/Users');
 
+var bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  let offset = req.query.offset;
-  console.log(offset);
-  model.getUsers(offset)
-      .then((elem)=>{
-          res.json(elem);
-      })
-      .catch((err)=>{
-          next(err);
-      })
+    let offset = req.query.offset;
+    console.log(offset);
+    model.getUsers(offset)
+        .then((elem)=>{
+            res.json(elem);
+        })
+        .catch((err)=>{
+            next(err);
+        })
 
 });
 
@@ -31,7 +34,7 @@ router.get('/:id', function(req, res, next) {
                 })
             }
         })
-        .catch((err)=>{
+        .catch((err)=> {
             next(err);
         })
 });
@@ -42,6 +45,7 @@ router.post('/', function(req, res, next) {
     email = req.body.email;
     verifyEmail = req.body.verifyEmail;
     password = req.body.password;
+    verifyPassword = req.body.verifyPassword;
 
     if(!pseudo || !email || !verifyEmail || !password){
         return res.status(400).json({
@@ -49,6 +53,19 @@ router.post('/', function(req, res, next) {
             errorInfo: "INVALID INFORMATIONS"
         })
     }
+    if(email != verifyEmail) {
+        return res.status(400).json({
+            error: true,
+            errorInfo: "Email does not match"
+        })
+    }
+    if(password != verifyPassword){
+        return res.status(400).json({
+            error: true,
+            errorInfo: "Password does not match"
+        })
+    }
+
     model.getUserByFilter({
         $or: [
             {
@@ -59,20 +76,22 @@ router.post('/', function(req, res, next) {
         ]})
         .then((elem)=>{
             if (elem.length > 0){
-                res.status(409).json({
+                return res.status(409).json({
                     error: true,
                     errorInfo: "MAIL OR PSEUDO ALREADY USED"
                 })
             }else{
-                model.addUser({
-                    pseudo : pseudo,
-                    mail : email,
-                    password : password
-                }).then((elem) => {
-                  res.status(201).json({
-                          error : false,
-                          users_id : elem.id
-                  })
+                bcrypt.hash(password,saltRounds).then((hash) => {
+                    model.addUser({
+                        pseudo : pseudo,
+                        mail : email,
+                        password : hash
+                    }).then((elem) => {
+                        return res.status(201).json({
+                            error : false,
+                            users_id : elem.id
+                        })
+                    })
                 })
             }
         })
