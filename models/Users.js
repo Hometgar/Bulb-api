@@ -66,19 +66,20 @@ module.exports = {
             model.findAll({
                 where: filter
             })
-            .then((elem)=>{
-                resolve(elem);
-            })
-            .catch((err)=>{
-                reject(err);
-            })
+                .then((elem)=>{
+                    resolve(elem);
+                })
+                .catch((err)=>{
+                    reject(err);
+                })
         })
     },
     "addUser":function(user) {
         return new Promise((resolve,reject) => {
-            model.create(user).then((elem) => {
-                resolve(elem);
-            }).catch((err) => {
+            model.create(user)
+                .then((elem) => {
+                    resolve(elem);
+                }).catch((err) => {
                 reject(err)
             })
         })

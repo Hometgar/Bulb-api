@@ -40,7 +40,7 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-    console.log(req.body);
+
     pseudo = req.body.pseudo;
     email = req.body.email;
     verifyEmail = req.body.verifyEmail;
@@ -98,6 +98,46 @@ router.post('/', function(req, res, next) {
         .catch((err)=>{
             next(err);
         })
+});
+
+router.post("/connection", function (req,res,next) {
+
+    password = req.body.password;
+    email = req.body.email;
+
+
+    if(!email || !password){
+        return res.status(400).json({
+            error: true,
+            errorInfo: "INVALID INFORMATIONS"
+        })
+    } else{
+        model.getUserByFilter({
+            mail : email
+        }).then((elem) => {
+            var user = elem[0].dataValues;
+            bcrypt.compare(password,elem[0].dataValues.password).then(function (result) {
+                if(result){
+                    return res.status(200).json({
+                        error : false,
+                        users_id : user.id,
+                        user_mail : user.mail,
+                        user_pseudo : user.pseudo
+                    })
+                } else {
+                    return res.status(404).json({
+                        error : true,
+                        errorInfo : "BAD PASSWORD OR MAIL"
+                    })
+                }
+            });
+
+        }).catch((err) => {
+            next(err);
+        })
+
+    }
+
 });
 
 
