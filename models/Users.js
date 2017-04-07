@@ -49,6 +49,7 @@ const model = db.define('user', {
     });
 
 model.sync();
+
 module.exports = {
     "getUsers":function(offset){
         return new Promise((resolve, reject)=>{

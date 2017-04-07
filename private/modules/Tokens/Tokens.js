@@ -1,28 +1,40 @@
 'use strict';
 
 const bcrypt = require('bcrypt');
-
+let collection;
 const fs = require('fs');
+const path = require('path');
 
-//tableau de tokens
-var conf = [];
+//tableau de tokens applicatif
+var applicatifKey = [];
+
+
+//tableau de tokens utilisateur
+var userKey = [];
 
 //met a jour le tableau de tokens a chaque accés au fichier
-const readableStream = fs.createReadStream('./private/valide-key.json');
-readableStream.setEncoding('utf-8');
-readableStream.on('data',(data)=>{
-    conf = JSON.parse(data);
+const readableApplicatifStream = fs.createReadStream(path.dirname(__filename)+'/valide-key.json');
+readableApplicatifStream.setEncoding('utf-8');
+readableApplicatifStream.on('data',(data)=>{
+    applicatifKey = JSON.parse(data);
 });
+
+const readableCleintStream = fs.createReadStream(path.dirname(__filename)+'/valide-client.json');
+readableCleintStream.setEncoding('utf-8');
+readableCleintStream.on('data',(data)=>{
+    userKey = JSON.parse(data);
+});
+
 
 const content = fs.readFileSync('./private/conf.json');
 
 module.exports = {
     /**
      *
-     * @param String client design la plateforme pour laquelle créer la nouvelle clé
+     * @param String client designe la plateforme pour laquelle créer la nouvelle clé
      * @returns {Promise}
      */
-    "generateToken":function (client) {
+    "generateApplicativeToken":function (client) {
         return new Promise((resolve, reject)=>{
 
             var token = "";
@@ -43,12 +55,12 @@ module.exports = {
                         return reject(err);
                     }
 
-                    if(!conf[client]){
-                        conf[client] = [];
+                    if(!applicatifKey[client]){
+                        applicatifKey[client] = [];
                     }
-                    conf[client].push(hash);
+                    applicatifKey[client].push(hash);
 
-                    fs.writeFileSync('./private/valide-key.json',JSON.stringify(conf));
+                    fs.writeFileSync('./private/valide-key.json',JSON.stringify(applicatifKey));
 
                     return resolve(token);
                 });
@@ -66,12 +78,18 @@ module.exports = {
     "verifyApplicatifToken":function(req, res, next){
         let token = (req.method === 'GET')? req.query.applicatifToken : req.body.applicatifToken;
 
+        if(!token){
+            return res.status(403).json({
+                error: true,
+                errorInfo:"INVALID TOKEN"
+            })
+        }
         console.log("token :"+token);
 
         var flag = false;
-        for (var client of conf){
+        for (var client of applicatifKey){
             for(var key of client){
-                if(bcrypt.compareSync(token,key)){
+                if(bcrypt.compareSync(key, token)){
                     flag = true;
                     return next();
                 }
@@ -84,6 +102,79 @@ module.exports = {
         return res.status(403).json({
             error: true,
             errorInfo:"INVALID TOKEN"
+        })
+    },
+    /**
+     *
+     * @returns {Promise}
+     */
+    "generateUsersToken":function () {
+        return new Promise((resolve, reject)=>{
+
+            var token = "";
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            for( var i=0; i < 10; i++ )
+                token += possible.charAt(Math.floor(Math.random() * possible.length));
+
+
+            bcrypt.genSalt(null, function(err, salt) {
+                if (err){
+                    throw err;
+                    return reject(err);
+                }
+                bcrypt.hash(token, salt, function(err, hash) {
+                    if (err){
+                        throw err;
+                        return reject(err);
+                    }
+
+                    console.log(hash);
+
+                    userKey['valid-client'].push(token);
+
+                    fs.writeFileSync(path.dirname(__filename)+'/valide-client.json',JSON.stringify(userKey));
+
+                    return resolve(token);
+
+                });
+            });
+        });
+    },
+    /**
+     * Verify que les requetes comporte bien les tokens applicatifs et que ceux ci soit bon
+     *
+     * @param req
+     * @param res
+     * @param next
+     * @returns {*}
+     */
+    "verifyUsersToken":function(req, res, next){
+        let token = (req.method === 'GET')? req.query.userToken : req.body.userToken;
+
+        if(!token){
+            return res.status(403).json({
+                error: true,
+                errorInfo:"INVALID TOKEN 1"
+            })
+        }
+
+        var flag = false;
+        for (var key of userKey['valid-client']){
+
+            if(bcrypt.compareSync(key, token)){
+                flag = true;
+                return next();
+            }
+
+            if(flag){
+                break;
+            }
+        }
+
+        return res.status(403).json({
+            error: true,
+            errorInfo:"INVALID TOKEN 2"
         })
     }
 };

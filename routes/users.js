@@ -5,7 +5,7 @@ var model = require('../models/Users');
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   let offset = req.query.offset;
-  console.log(offset);
+  console.log('offset :',offset);
   model.getUsers(offset)
       .then((elem)=>{
           res.json(elem);
@@ -37,7 +37,6 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-    console.log(req.body);
     pseudo = req.body.pseudo;
     email = req.body.email;
     verifyEmail = req.body.verifyEmail;
@@ -69,10 +68,10 @@ router.post('/', function(req, res, next) {
                     mail : email,
                     password : password
                 }).then((elem) => {
-                  res.status(201).json({
-                          error : false,
-                          users_id : elem.id
-                  })
+                    res.status(201).json({
+                        error : false,
+                        users_id : elem.id
+                    })
                 })
             }
         })
