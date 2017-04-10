@@ -3,9 +3,7 @@
     "host":"localhost",
     "database":"bulb-api",
     "user":"root",
-    "password":""
-  },
-  "valid-KEY":[
-
-  ]
+    "password":"",
+    "port": 3306
+  }
 }

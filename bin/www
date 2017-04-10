@@ -7,12 +7,14 @@
 var app = require('../app');
 var debug = require('debug')('bulb-api:server');
 var http = require('http');
+var token = require('../private/modules/Tokens')['resetUserToken'];
 
 /**
  * Get port from environment and store in Express.
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+console.log("//*****************************SERVEUR LANCÉE SUR LE PORT "+port+"*****************************\\\\");
 app.set('port', port);
 
 /**
@@ -28,6 +30,15 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+//reseting du fichier token user
+server.on('close', function() {
+    console.log(' Stopping ...');
+});
+
+process.on('SIGINT', function() {
+    server.close();
+});
 
 /**
  * Normalize a port into a number, string, or false.

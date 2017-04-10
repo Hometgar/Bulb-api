@@ -5,7 +5,7 @@ var model = require('../models/Users');
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   let offset = req.query.offset;
-  console.log(offset);
+  console.log('offset :',offset);
   model.getUsers(offset)
       .then((elem)=>{
           res.json(elem);
@@ -37,13 +37,13 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.post('/', function(req, res, next) {
-    console.log(req.body);
     pseudo = req.body.pseudo;
     email = req.body.email;
     verifyEmail = req.body.verifyEmail;
     password = req.body.password;
+
     if(!pseudo || !email || !verifyEmail || !password){
-        res.status(400).json({
+        return res.status(400).json({
             error: true,
             errorInfo: "INVALID INFORMATIONS"
         })
@@ -67,6 +67,11 @@ router.post('/', function(req, res, next) {
                     pseudo : pseudo,
                     mail : email,
                     password : password
+                }).then((elem) => {
+                    res.status(201).json({
+                        error : false,
+                        users_id : elem.id
+                    })
                 })
             }
         })
