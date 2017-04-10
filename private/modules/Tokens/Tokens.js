@@ -19,13 +19,6 @@ readableApplicatifStream.on('data',(data)=>{
     applicatifKey = JSON.parse(data);
 });
 
-const readableCleintStream = fs.createReadStream(path.dirname(__filename)+'/valide-client.json');
-readableCleintStream.setEncoding('utf-8');
-readableCleintStream.on('data',(data)=>{
-    userKey = JSON.parse(data);
-});
-
-
 const content = fs.readFileSync('./private/conf.json');
 
 module.exports = {
@@ -131,16 +124,47 @@ module.exports = {
 
                     console.log(hash);
 
-                    userKey['valid-client'].push(token);
+                    userKey.push(token);
 
-                    fs.writeFileSync(path.dirname(__filename)+'/valide-client.json',JSON.stringify(userKey));
-
-                    return resolve(token);
+                    return resolve(hash);
 
                 });
             });
         });
     },
+    /**
+     * Delete user token
+     *
+     * @returns {Promise}
+     */
+    "deleteUsersToken":function (token) {
+    return new Promise((resolve, reject)=>{
+
+        if(!token){
+            return reject(new Error("pas de token"));
+        }
+
+        var flag = false;
+        for (var key of userKey){
+
+            if(bcrypt.compareSync(key, token)){
+                flag = true;
+                userKey.splice(userKey[userKey.indexOf(key)],1);
+                console.log(userKey);
+                return resolve();
+            }
+
+            if(flag){
+                break;
+            }
+        }
+
+
+        if(!flag){
+            return reject(new Error("token incorrecte"));
+        }
+    });
+},
     /**
      * Verify que les requetes comporte bien les tokens applicatifs et que ceux ci soit bon
      *
@@ -155,12 +179,12 @@ module.exports = {
         if(!token){
             return res.status(403).json({
                 error: true,
-                errorInfo:"INVALID TOKEN 1"
+                errorInfo:"INVALID TOKEN"
             })
         }
 
         var flag = false;
-        for (var key of userKey['valid-client']){
+        for (var key of userKey){
 
             if(bcrypt.compareSync(key, token)){
                 flag = true;
@@ -174,7 +198,7 @@ module.exports = {
 
         return res.status(403).json({
             error: true,
-            errorInfo:"INVALID TOKEN 2"
+            errorInfo:"INVALID TOKEN"
         })
     }
 };
