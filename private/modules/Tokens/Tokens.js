@@ -30,6 +30,10 @@ module.exports = {
     "generateApplicativeToken":function (client) {
         return new Promise((resolve, reject)=>{
 
+            if(!client){
+                return reject(new Error("pas de client"));
+            }
+
             var token = "";
             var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
