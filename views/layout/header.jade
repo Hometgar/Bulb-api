@@ -1,0 +1,26 @@
+doctype html
+html(lang='en')
+    head
+        meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1.0')
+        title= "Bulb - "+title
+        // CSS
+        link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+        link(href='materialize-css/dist/css/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
+        link(href='stylesheets/site.css', rel='stylesheet')
+        if css
+            link(href=css, rel='stylesheet')
+    body
+        nav(role='navigation')
+            .nav-wrapper.container
+                a.brand-logo(href='#')
+                    img(src='https://images.vexels.com/media/users/3/129021/isolated/lists/00d00ccce8836900ee91cf83a0707f71-water-drop-bulb-icon.png', width="64", height="64" )
+                ul#nav-mobile.right.hide-on-med-and-down
+                    li
+                        a(href='/') Home
+                    li
+                        a(href='plugins') Plugins
+                    li
+                        a(href='Changelog') Changelog
+        block content
+        include footer

@@ -1,0 +1,10 @@
+/*Fixe le footer en bas de la page*/
+footer {
+    position:absolute;
+    width: 100%;
+    bottom:0;
+}
+
+#download-button {
+    background: #e67e22;
+}

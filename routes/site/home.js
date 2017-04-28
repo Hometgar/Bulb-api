@@ -6,14 +6,19 @@ var router = express.Router();
  * Page d'accueil
  */
 router.get('/',function (req, res, next) {
-    res.status(200);
+    let variables = {
+        title: 'Home',
+        css: 'stylesheets/home.css'
+    };
+    res.type('html');
+    res.render('home',variables);
 });
 
 /**
  * Telechargement de bulb
  */
 router.get('/download',function (req, res, next) {
-    res.status(200);
+
 });
 
 
