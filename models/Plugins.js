@@ -3,27 +3,28 @@
 const fs = require('fs');
 const content = fs.readFileSync('./private/conf.json');
 const conf = JSON.parse(content)['db'];
+const userModel = require('./Users')['model'];
 var Sequelize = require('sequelize');
 var db = new Sequelize(conf.database, conf.user, conf.password,{
     "host": conf.host,
     "port": conf.port
 });
 
-const model = db.define('user', {
+const model = db.define('plugin', {
         id: {
             type: Sequelize.DataTypes.BIGINT,
             primaryKey: true,
             autoIncrement: true
         },
-        pseudo: {
+        name: {
             type: Sequelize.DataTypes.STRING
         },
-        mail: {
+        version: {
             type: Sequelize.DataTypes.STRING
         },
-        password: {
+        description: {
             type: Sequelize.DataTypes.STRING
-        },
+        }
     },
     {
         paranoid: true,
@@ -39,19 +40,21 @@ const model = db.define('user', {
             responsify: function () {
                 let result = {};
                 result.id = this.id;
-                result.pseudo = this.pseudo;
-                result.mail = this.mail;
-                result.password = this.password;
+                //todo redefine
 
                 return result;
             }
+
         }
     });
 
-model.sync();
-
+model.belongsToMany(model,{through: 'pluginDependencies', as:'pluginSource'});
+model.belongsTo(userModel);
+model.sync({
+    force: true
+});
 module.exports = {
-    "getUsers":function(offset){
+    "getPlugins":function(offset){
         return new Promise((resolve, reject)=>{
             model.findAll({limit: 20, offset: (offset)?parseInt(offset):0})
                 .then((elem)=>{
@@ -62,24 +65,45 @@ module.exports = {
                 })
         })
     },
-    "getUserByFilter":function(filter){
+    "getPluginByFilter":function(filter){
         return new Promise((resolve, reject)=>{
             model.findAll({
                 where: filter
             })
-            .then((elem)=>{
-                resolve(elem);
-            })
-            .catch((err)=>{
-                reject(err);
-            })
+                .then((elem)=>{
+                    resolve(elem);
+                })
+                .catch((err)=>{
+                    reject(err);
+                })
         })
     },
-    "addUser":function(user) {
+    /**
+     *
+     * @param userId
+     * @param name
+     * @param version
+     * @param description
+     * @param sourceFile
+     * @param dependancies
+     * @returns {Promise}
+     */
+    "addPlugin":function(userId, name, version, description, sourceFile, dependancies) {
         return new Promise((resolve,reject) => {
-            model.create(user).then((elem) => {
-                resolve(elem);
-            }).catch((err) => {
+            model.create({
+                user_id: userId,
+                name: name,
+                version: version,
+                description: description
+            })
+                .then((elem) => {
+                    if(dependancies.length > 0){
+                        dependancies.forEach((idSource)=>{
+                            elem.addPlugin(idSource);
+                        })
+                    }
+                    resolve(elem);
+                }).catch((err) => {
                 reject(err)
             })
         })

@@ -20,10 +20,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //middleware pour verifier la presence du token applicatif
 //let verifyToken = require('./private/modules/Tokens/Tokens')['verifyApplicatifToken'];
-let verifyToken = require('./private/modules/Tokens/Tokens');
-app.use(verifyToken.verifyUsersToken);
-
-
 
 
 //ajout des routes
