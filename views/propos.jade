@@ -1,0 +1,32 @@
+extends layout/header
+block content
+    br
+    .row
+        h5.center-align.darken-3.light-blue-text Technologies utilisées
+        br
+        .container
+            ul.collapsible.popout.hoverable(data-collapsible='accordion')
+                li
+                    .collapsible-header.active.red-text
+                        i.material-icons place
+                        | Application Bulb
+                    .collapsible-body
+                        span Java, Maven
+                li
+                    .collapsible-header.light-blue-text
+                        i.material-icons filter_drama
+                        | Site internet
+                    .collapsible-body
+                        span NodeJs, Express, MySQL
+
+        br
+        .row
+            .col.s8.offset-s2
+                hr
+        h5.center-align.light-blue-text Développeurs du projet
+        br
+        .container
+            ul.collection.hoverable
+                li.collection-item Mikael - Mail : mickael@myges.fr
+                li.collection-item Vincent - Mail : vincent@myges.fr
+                li.collection-item Anthony - Mail : anthony@myges.fr

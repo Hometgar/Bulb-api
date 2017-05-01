@@ -3,7 +3,10 @@ html(lang='en')
     head
         meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
         meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1.0')
-        title= "Bulb - "+title
+        if title
+            title= "Bulb - "+title
+        else
+            title="Bulb - 404"
         // CSS
         link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
         link(href='materialize-css/dist/css/materialize.css', type='text/css', rel='stylesheet', media='screen,projection')
@@ -21,6 +24,6 @@ html(lang='en')
                     li
                         a(href='plugins') Plugins
                     li
-                        a(href='Changelog') Changelog
+                        a(href='changelog') Changelog
         block content
         include footer

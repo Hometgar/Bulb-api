@@ -15,6 +15,14 @@ router.get('/',function (req, res, next) {
 });
 
 /**
+ * Page A propos
+ */
+router.get('/propos',function (req, res, next) {
+    res.type('html');
+    res.render('propos',{title: 'A propos'});
+});
+
+/**
  * Telechargement de bulb
  */
 router.get('/download',function (req, res, next) {
