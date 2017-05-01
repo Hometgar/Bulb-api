@@ -19,7 +19,12 @@ router.get('/',function (req, res, next) {
  */
 router.get('/propos',function (req, res, next) {
     res.type('html');
-    res.render('propos',{title: 'A propos'});
+
+    let variables = {
+        title: 'A propos',
+        css: 'stylesheets/propos.css'
+    };
+    res.render('propos',variables);
 });
 
 /**
