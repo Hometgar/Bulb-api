@@ -44,7 +44,6 @@ router.get('plugins/:id', function(req, res, next) {
 });
 
 //ajout plugin a la liste des plugins de l'utilisateur <:id>
-//TODO : verification du type de fichier
 router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, res, next) {
 
     userId = req.body.id;
@@ -55,8 +54,8 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
     sourceFile = req.file;
 
     flag = false;
-
-    if(!userId || !name || !version || !description || !sourceFile){
+    console.log(sourceFile.mimetype);
+    if(!userId || !name || !version || !description || !sourceFile || !sourceFile.mimetype.match('zip')){
         flag = true;
         //champs manquant suppression du dossier temp
         deleteFichierTemps(function(){
@@ -79,7 +78,7 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
                             "use strict";
 
                             //chemin final du dossier plugin
-                            let dest = path.join(uploadDestination, '../plugins', name, version);
+                            let dest = path.join(uploadDestination, '../plugins', name, version+'.zip');
 
                             //verification que le dossier du plugin existe; s'il n'existe pas on le crée
                             fs.access(path.join(uploadDestination, '../plugins/',name),(err)=>{
@@ -98,9 +97,10 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
 
                                         lastCreation(dest, elem);
                                     })
+                                }else {
+                                    //le dossier existe pas besoin de le créer;
+                                    lastCreation(dest, elem);
                                 }
-                                //le dossier existe pas besoin de le créer;
-                                lastCreation(dest, elem);
                             });
                         })
                         .catch((err) => {
@@ -130,6 +130,7 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
         fs.rename(sourceFile.path, dest, (err) => {
             console.log('creation dossier version');
             if (err) {
+                console.log(err);
                 pluginModel.destroy({where: {id: elem.id}})
                     .then((count) => {
                         if (count > 0) {
