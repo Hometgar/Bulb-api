@@ -1,4 +1,5 @@
 module.exports = (app)=>{
-  app.use('/users', require('./users'));
-  app.use(require('./plugins'));
+  app.use('/api/users', require('./users'));
+  app.use('/api',require('./plugins'));
+  app.use('/test',require('./test'))
 };

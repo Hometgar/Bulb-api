@@ -10,7 +10,7 @@ var db = new Sequelize(conf.database, conf.user, conf.password,{
     "port": conf.port
 });
 
-const model = db.define('plugin', {
+const pluginModel = db.define('plugin', {
         id: {
             type: Sequelize.DataTypes.BIGINT,
             primaryKey: true,
@@ -30,11 +30,9 @@ const model = db.define('plugin', {
         paranoid: true,
         underscored: true,
         freezeTableName: true,
-        classMethods: {
-            associate: function (models) {
-
-                // associations can be defined here
-            }
+        name:{
+            singular: 'plugin',
+            plural: 'plugins'
         },
         instanceMethods: {
             responsify: function () {
@@ -48,15 +46,15 @@ const model = db.define('plugin', {
         }
     });
 
-model.belongsToMany(model,{through: 'pluginDependencies', as:'pluginSource'});
-model.belongsTo(userModel);
-model.sync({
-    force: true
-});
+pluginModel.belongsToMany(pluginModel,{through: 'PluginDependencies', as:'PluginDependencies'});
+pluginModel.belongsTo(userModel);
+
+db.sync();
+
 module.exports = {
     "getPlugins":function(offset){
         return new Promise((resolve, reject)=>{
-            model.findAll({limit: 20, offset: (offset)?parseInt(offset):0})
+            pluginModel.findAll({limit: 20, offset: (offset)?parseInt(offset):0})
                 .then((elem)=>{
                     resolve(elem);
                 })
@@ -67,7 +65,7 @@ module.exports = {
     },
     "getPluginByFilter":function(filter){
         return new Promise((resolve, reject)=>{
-            model.findAll({
+            pluginModel.findAll({
                 where: filter
             })
                 .then((elem)=>{
@@ -85,28 +83,54 @@ module.exports = {
      * @param version
      * @param description
      * @param sourceFile
-     * @param dependancies
+     * @param dependencies
      * @returns {Promise}
      */
-    "addPlugin":function(userId, name, version, description, sourceFile, dependancies) {
+    "addPlugin":function(userId, name, version, description, dependencies) {
         return new Promise((resolve,reject) => {
-            model.create({
+            var plugin = {};
+            pluginModel.create({
                 user_id: userId,
                 name: name,
                 version: version,
                 description: description
             })
-                .then((elem) => {
-                    if(dependancies.length > 0){
-                        dependancies.forEach((idSource)=>{
-                            elem.addPlugin(idSource);
+                .then((newPlugin) => {
+                    plugin = newPlugin.dataValues;
+                    plugin.dependencies = [];
+                    var filter = [];
+                    if(dependencies != null){
+                        dependencies.forEach((id)=>{
+                            filter.push({
+                                id: id
+                            });
+                        });
+
+                        pluginModel.findAll({
+                            where: {
+                                $or: filter
+                            }
                         })
+                            .then((plugins)=>{
+                                plugins.forEach((pluginSource)=>{
+                                    plugin.dependencies.push(pluginSource.dataValues);
+                                });
+                                newPlugin.setPluginDependencies(plugins)
+                                    .then(()=>{
+                                        resolve(plugin);
+                                    })
+                            })
+                            .catch((err)=>{
+                                reject(err);
+                            })
+                    }else{
+                        resolve(plugin);
                     }
-                    resolve(elem);
-                }).catch((err) => {
-                reject(err)
-            })
+                })
+                .catch((err) => {
+                    reject(err)
+                })
         })
     },
-    'model': model
+    'model': pluginModel
 };
