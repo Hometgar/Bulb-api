@@ -1,0 +1,51 @@
+extends layout/header
+block content
+    br
+    br
+    if (sended)
+        .row
+            .col.s8.offset-l2
+                .card-panel.teal.lighten-1.white-text #{sended}
+    else if (noSendedError)
+        .row
+            .col.s8.offset-l2
+                .card-panel.red.lighten-1.white-text #{noSendedError}
+    br
+    .row
+        form.col.s8.offset-l2.white.hoverable(action='/contact', method='post')
+            br
+            .row
+                .input-field.col.s6
+                    input#first_name.validate(type='text', name='first_name', value="#{first_name || ''}")
+                    label(for='first_name') Prénom
+                .input-field.col.s6
+                    input#last_name.validate(type='text', name='last_name', value="#{last_name || ''}")
+                    label(for='last_name') Nom
+            .row
+                .input-field.col.s12
+                    input#email.validate(type='email', name='email', value="#{email || ''}")
+                    if noMail
+                        label.red-text(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
+                    else
+                        label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
+            .row
+                .input-field.col.s12
+                    textarea#message.materialize-textarea(name='message',) #{message}
+                    if noMessage
+                        label.red-text(for='message') Votre message *
+                    else
+                        label(for='message') Votre message *
+
+            .row
+                .col.s12.center-align
+                    button.btn.waves-effect.waves-light.green(type='submit', name='action')
+                        | Envoyer
+                        i.material-icons.right send
+                    | &emsp;
+                    button.btn.waves-effect.waves-light.orange(type='reset', name='action')
+                        | Effacer
+                        i.material-icons.right replay
+            br
+            br
+    br
+    br
