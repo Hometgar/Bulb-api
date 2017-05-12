@@ -84,5 +84,6 @@ module.exports = {
                 reject(err)
             })
         })
-    }
+    },
+    'model': model
 };

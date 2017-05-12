@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('bulb-api:server');
 var http = require('http');
-var token = require('../private/modules/Tokens')['resetUserToken'];
+var token = require('../private/modules/Tokens')['resetUsersToken'];
 
 /**
  * Get port from environment and store in Express.
