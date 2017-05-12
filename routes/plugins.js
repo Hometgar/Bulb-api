@@ -24,16 +24,39 @@ router.get('plugins/', function(req, res, next) {
 
 });
 
-router.get('plugins/:id', function(req, res, next) {
+router.get('/plugins/:id', function(req, res, next) {
     let id = req.params.id;
+
     pluginModel.getPluginByFilter({
-        where:{
+        where: {
             id: parseInt(id)
         }
     })
         .then((elem)=>{
             if (elem.length > 0){
-                res.json(elem);
+                let plugin = elem[0];
+                let pluginValues = elem[0].dataValues;
+                plugin.getPluginDependencies().then((plugins)=>{
+                    "use strict";
+                    let resPlugin = {
+                        id: pluginValues.id,
+                        name: pluginValues.name,
+                        description: pluginValues.description,
+                        version: pluginValues.version,
+                        dependencies: plugins.length != null ? plugins.map((pluginSource)=>{
+                            let values = pluginSource.dataValues;
+                            return {
+                                id: values.id,
+                                name: values.name,
+                                version: values.version
+                            }
+                        }) : null
+                    };
+                    res.status(200).json({
+                        error: false,
+                        plugin: resPlugin
+                    });
+                });
             }else{
                 res.status(404).json({
                     error: true,
@@ -45,6 +68,58 @@ router.get('plugins/:id', function(req, res, next) {
             next(err);
         })
 });
+
+router.get('/users/:id/plugins',(req,res,next)=>{
+    "use strict";
+    let id = req.params.id;
+
+    userModel.getUserByFilter({
+        id: id
+    }).then((user)=>{
+        if(user.length > 0 ){
+            pluginModel.getPluginByFilter({
+                attributes:[
+                    'name',
+                    [sequelize.fn('MAX', sequelize.col('version')), 'version'],
+                    [sequelize.fn('MAX', sequelize.col('id')), 'id'],
+                    'description'
+                ],
+                where:{
+                    user_id: id
+                },
+                group:[
+                    'name'
+                ]
+            }).then((plugins)=>{
+                let plugRes = plugins.map((plugin)=>{
+                    plugin  = plugin.dataValues;
+                    return {
+                        id: plugin.id,
+                        name: plugin.name,
+                        description: plugin.description,
+                        version: plugin.version
+                    }
+                });
+                res.status(200).json({
+                    error: false,
+                    plugins: plugRes ? plugRes : []
+                })
+            }).catch((err)=>{
+                console.log(err);
+                next(err);
+            })
+        }else{
+            res.status(404).json({
+                error: true,
+                errorInfo: "NOT FOUND"
+            });
+        }
+    }).catch((err)=>{
+        console.log(err);
+        next(err);
+    })
+});
+
 
 //ajout plugin a la liste des plugins de l'utilisateur <:id>
 router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, res, next) {
@@ -176,57 +251,6 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
             }
         })
     }
-});
-
-router.get('/users/:id/plugins',(req,res,next)=>{
-    "use strict";
-    let id = req.params.id;
-
-    userModel.getUserByFilter({
-        id: id
-    }).then((user)=>{
-        if(user.length > 0 ){
-            pluginModel.getPluginByFilter({
-                attributes:[
-                    'name',
-                    [sequelize.fn('MAX', sequelize.col('version')), 'version'],
-                    [sequelize.fn('MAX', sequelize.col('id')), 'id'],
-                    'description'
-                ],
-                where:{
-                    user_id: id
-                },
-                group:[
-                    'name'
-                ]
-            }).then((plugins)=>{
-                let plugRes = plugins.map((plugin)=>{
-                    plugin  = plugin.dataValues;
-                    return {
-                        id: plugin.id,
-                        name: plugin.name,
-                        description: plugin.description,
-                        version: plugin.version
-                    }
-                });
-                res.status(200).json({
-                    error: false,
-                    plugins: plugRes ? plugRes : []
-                })
-            }).catch((err)=>{
-                console.log(err);
-                next(err);
-            })
-        }else{
-            res.status(404).json({
-                error: true,
-                errorInfo: "NOT FOUND"
-            });
-        }
-    }).catch((err)=>{
-        console.log(err);
-        next(err);
-    })
 });
 
 module.exports = router;
