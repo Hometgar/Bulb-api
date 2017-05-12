@@ -3,7 +3,12 @@
     "host":"localhost",
     "database":"bulb-api",
     "user":"root",
-    "password":"",
-    "port": 3306
+    "password":"root",
+    "port": 8889
+  },
+
+  "mail": {
+    "user" :"",
+    "mdp" : ""
   }
 }
