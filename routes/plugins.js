@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var pluginModel = require('../models/Plugins');
 var userModel = require('../models/Users');
+const sequelize = require('sequelize');
 const formidable = require('formidable');
 const path = require('path');
 const fs = require('fs');
@@ -26,7 +27,9 @@ router.get('plugins/', function(req, res, next) {
 router.get('plugins/:id', function(req, res, next) {
     let id = req.params.id;
     pluginModel.getPluginByFilter({
-        id: parseInt(id)
+        where:{
+            id: parseInt(id)
+        }
     })
         .then((elem)=>{
             if (elem.length > 0){
@@ -54,21 +57,28 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
     sourceFile = req.file;
 
     flag = false;
-    console.log(sourceFile.mimetype);
     if(!userId || !name || !version || !description || !sourceFile || !sourceFile.mimetype.match('zip')){
         flag = true;
-        //champs manquant suppression du dossier temp
-        deleteFichierTemps(function(){
-            return res.status(400).json({
-                error: true,
-                errorInfo: "INVALID INFORMATIONS"
-            })
-        });
+        if(sourceFile){
+            //champs manquant suppression du dossier temp
+            deleteFichierTemps(function(){
+                return res.status(400).json({
+                    error: true,
+                    errorInfo: "INVALID INFORMATIONS"
+                })
+            });
+        }
+        return res.status(400).json({
+            error: true,
+            errorInfo: "INVALID INFORMATIONS"
+        })
     }
 
     if(!flag) {
         userModel.getUserByFilter({
-            'id': userId
+            where: {
+                'id': userId
+            }
         })
             .then((elem) => {
                 if (elem.length > 0) {
@@ -168,6 +178,55 @@ router.post('/users/:id/plugins/', upload.single('sourceFile'), function(req, re
     }
 });
 
+router.get('/users/:id/plugins',(req,res,next)=>{
+    "use strict";
+    let id = req.params.id;
 
+    userModel.getUserByFilter({
+        id: id
+    }).then((user)=>{
+        if(user.length > 0 ){
+            pluginModel.getPluginByFilter({
+                attributes:[
+                    'name',
+                    [sequelize.fn('MAX', sequelize.col('version')), 'version'],
+                    [sequelize.fn('MAX', sequelize.col('id')), 'id'],
+                    'description'
+                ],
+                where:{
+                    user_id: id
+                },
+                group:[
+                    'name'
+                ]
+            }).then((plugins)=>{
+                let plugRes = plugins.map((plugin)=>{
+                    plugin  = plugin.dataValues;
+                    return {
+                        id: plugin.id,
+                        name: plugin.name,
+                        description: plugin.description,
+                        version: plugin.version
+                    }
+                });
+                res.status(200).json({
+                    error: false,
+                    plugins: plugRes ? plugRes : []
+                })
+            }).catch((err)=>{
+                console.log(err);
+                next(err);
+            })
+        }else{
+            res.status(404).json({
+                error: true,
+                errorInfo: "NOT FOUND"
+            });
+        }
+    }).catch((err)=>{
+        console.log(err);
+        next(err);
+    })
+});
 
 module.exports = router;

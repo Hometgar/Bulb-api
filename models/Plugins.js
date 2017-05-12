@@ -63,11 +63,9 @@ module.exports = {
                 })
         })
     },
-    "getPluginByFilter":function(filter){
+    "getPluginByFilter":function(filters){
         return new Promise((resolve, reject)=>{
-            pluginModel.findAll({
-                where: filter
-            })
+            pluginModel.findAll(filters)
                 .then((elem)=>{
                     resolve(elem);
                 })
