@@ -1,0 +1,51 @@
+extends layout/header
+block content
+    br
+    br
+    .row
+        .col.s8.offset-l2
+            .card-panel.teal.lighten-2.white-text S'inscrire vous permettra d'installer des plugins sur l'application.
+                | De plus, vous pourrez contribuer à l'enrichissement de l'application via l'ajout de plugins
+    br
+    .row
+        form.col.s8.offset-l2.white.hoverable(action='/inscription', method='post')
+            br
+            .row
+                .input-field.col.s6
+                    input#first_name.validate(type='text', name='first_name', value="#{first_name || ''}")
+                    label(for='first_name') Prénom
+                .input-field.col.s6
+                    input#last_name.validate(type='text', name='last_name', value="#{last_name || ''}")
+                    label(for='last_name') Nom
+            .row
+                .input-field.col.s12
+                    input#email.validate(type='email', name='email', value="#{email || ''}")
+                    if noMail
+                        label.red-text(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
+                    else
+                        label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
+            .row
+                .input-field.col.s12
+                    input#confEmail.validate(type='email', name='confEmail', value="#{email || ''}")
+                    label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Confirmer votre email *
+            .row
+                .input-field.col.s12
+                    input#passsword.validate(type='password', name='pwd', value="#{pwd || ''}")
+                    label(for='passsword') Mot de passe *
+
+            .row
+                .input-field.col.s12
+                    input#confPasssword.validate(type='password', name='confPwd', value="#{pwd || ''}")
+                    label(for='confPasssword') Confirmer votre mot de passe *
+
+            .row
+                .col.s12.center-align
+                    button.btn.waves-effect.waves-light.green(type='submit', name='action')
+                        | Se connecter
+                        i.material-icons.right send
+                    | &emsp;
+                    button.btn.waves-effect.waves-light.orange(type='reset', name='action')
+                        | Effacer
+                        i.material-icons.right replay
+    br
+    br
