@@ -1,8 +1,9 @@
 /**
  * Created by vince on 23/05/2017.
  */
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
+let moduleUser = require('../../private/modules/Users');
 
 /**
  * Affiche la page d'inscription
@@ -15,7 +16,18 @@ router.get('/',function (req, res, next) {
  * Inscription d'un utilisateur
  */
 router.post('/',function (req, res, next) {
-    res.render('inscription');
+
+    console.log(req.body);
+    moduleUser.addUser(req.body.pseudo,req.body.firstName,req.body.lastName,
+                        req.body.email,req.body.confEmail,req.body.pwd,req.body.confPwd)
+
+        .then((user)=>{
+            console.log('then test');
+            console.log(user);
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
 });
 
 

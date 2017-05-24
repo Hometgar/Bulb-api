@@ -18,6 +18,12 @@ const model = db.define('user', {
         pseudo: {
             type: Sequelize.DataTypes.STRING
         },
+        lastName: {
+            type: Sequelize.DataTypes.STRING
+        },
+        firstName: {
+            type: Sequelize.DataTypes.STRING
+        },
         mail: {
             type: Sequelize.DataTypes.STRING
         },
@@ -40,6 +46,8 @@ const model = db.define('user', {
                 let result = {};
                 result.id = this.id;
                 result.pseudo = this.pseudo;
+                result.lastName = this.lastName;
+                result.firstName = this.firstName;
                 result.mail = this.mail;
                 result.password = this.password;
 

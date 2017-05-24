@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var model = require('../../models/Users');
+var moduleUser = require('../../private/modules/Users');
 
-var bcrypt = require('bcrypt');
-const saltRounds = 10;
+/**
+ *  api/users.js gère la partie utilisateur de l'api
+ */
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -39,104 +41,40 @@ router.get('/:id', function(req, res, next) {
         })
 });
 
+/**
+ *  Ajout d'un utilisateur
+ */
 router.post('/', function(req, res, next) {
 
-    pseudo = req.body.pseudo;
-    email = req.body.email;
-    verifyEmail = req.body.verifyEmail;
-    password = req.body.password;
-    verifyPassword = req.body.verifyPassword;
+    console.log("ajout d'un utilisateur");
+    console.log(req.query);
+    // moduleUser.addUser(req.body.pseudo,req.body.firstName,req.body.lastName,
+    //     req.body.email,req.body.confEmail,req.body.pwd,req.body.confPwd)
+    //
+    //     .then((user)=>{
+    //         res.status(user.errorCode).json(user);
+    //     })
+    //     .catch((err)=>{
+    //         res.status(err.errorCode).json(err);
+    //     });
 
-    if(!pseudo || !email || !verifyEmail || !password){
-        return res.status(400).json({
-            error: true,
-            errorInfo: "INVALID INFORMATIONS"
-        })
-    }
-    if(email != verifyEmail) {
-        return res.status(400).json({
-            error: true,
-            errorInfo: "Email does not match"
-        })
-    }
-    if(password != verifyPassword){
-        return res.status(400).json({
-            error: true,
-            errorInfo: "Password does not match"
-        })
-    }
 
-    model.getUserByFilter({
-        $or: [
-            {
-                pseudo: pseudo
-            },{
-                mail: email
-            }
-        ]})
-        .then((elem)=>{
-            if (elem.length > 0){
-                return res.status(409).json({
-                    error: true,
-                    errorInfo: "MAIL OR PSEUDO ALREADY USED"
-                })
-            }else{
-                bcrypt.hash(password,saltRounds).then((hash) => {
-                    model.addUser({
-                        pseudo : pseudo,
-                        mail : email,
-                        password : hash
-                    }).then((elem) => {
-                        return res.status(201).json({
-                            error : false,
-                            users_id : elem.id
-                        })
-                    })
-                })
-            }
-        })
-        .catch((err)=>{
-            next(err);
-        })
 });
 
-router.post("/connection", function (req,res,next) {
+/**
+ * Connexion d'un utilisateur
+ */
+router.post("/connection", function (req, res, next) {
 
-    password = req.body.password;
-    email = req.body.email;
-
-
-    if(!email || !password){
-        return res.status(400).json({
-            error: true,
-            errorInfo: "INVALID INFORMATIONS"
+    console.log(req.body);
+    moduleUser.connection(req.body.email, req.body.password)
+        .then((user)=>{
+            res.status(user.errorCode).json(user);
         })
-    } else{
-        model.getUserByFilter({
-            mail : email
-        }).then((elem) => {
-            var user = elem[0].dataValues;
-            bcrypt.compare(password,elem[0].dataValues.password).then(function (result) {
-                if(result){
-                    return res.status(200).json({
-                        error : false,
-                        users_id : user.id,
-                        user_mail : user.mail,
-                        user_pseudo : user.pseudo
-                    })
-                } else {
-                    return res.status(404).json({
-                        error : true,
-                        errorInfo : "BAD PASSWORD OR MAIL"
-                    })
-                }
-            });
+        .catch((err)=>{
+            res.status(user.errorCode).json(err);
+        });
 
-        }).catch((err) => {
-            next(err);
-        })
-
-    }
 
 });
 
