@@ -6,28 +6,34 @@ let userModule = {
     connection: (email, pwd)=>{
         return new Promise((resolve, reject)=>{
             if(!email || !pwd){
-                reject({
+                return reject({
                     errorCode : 400,
                     error: true,
                     errorInfo: "INVALID INFORMATIONS"
                 });
             } else{
                 model.getUserByFilter({
-                    mail : email
-                }).then((elem) => {
+                    $or: [
+                        {
+                            pseudo: email
+                        },{
+                            mail: email
+                        }
+                    ]}).then((elem) => {
                     if(elem.length > 0){
                         let user = elem[0].dataValues;
-                        bcrypt.compare(pwd,elem[0].dataValues.pwd).then(function (result) {
-                            if(result){
-                                resolve({
+                        bcrypt.compare(pwd,elem[0].dataValues.password).then((same) => {
+                            if(same){
+                                return resolve({
                                     errorCode : 200,
                                     error : false,
                                     users_id : user.id,
                                     user_mail : user.mail,
                                     user_pseudo : user.pseudo
                                 })
-                            } else {
-                                reject({
+                            }
+                            else{
+                                return reject({
                                     errorCode : 404,
                                     error : true,
                                     errorInfo : "BAD PASSWORD OR MAIL"
@@ -35,48 +41,44 @@ let userModule = {
                             }
                         });
                     }else{
-                        reject({
+                        return reject({
                             errorCode : 404,
                             error : true,
                             errorInfo : "BAD PASSWORD OR MAIL"
-                        })
+                        });
                     }
 
 
                 }).catch((err) => {
-                    reject(err);
-                })
+                    return reject({errorCode : 404});
+                });
 
             }
-        })
+        });
 
     },
     addUser: (pseudo,firstName,lastName,email,confEmail,pwd,confPwd) => {
-
-        console.log("---------ADD USER ---------------");
-        console.log(pseudo+" "+firstName+" "+lastName+" "+email+" "+confEmail+" "+pwd+" "+confPwd);
-
         return new Promise((resolve, reject)=>{
             if(!pseudo || !email || !confEmail || !pwd || !confPwd){
                 return reject({
                     errorCode : 400,
                     error: true,
                     errorInfo: "INVALID INFORMATIONS"
-                })
+                });
             }
             if(email !== confEmail) {
                 return reject({
                     errorCode : 400,
                     error: true,
                     errorInfo: "Email does not match"
-                })
+                });
             }
             if(pwd !== confPwd){
                 return reject({
                     errorCode : 400,
                     error: true,
                     errorInfo: "Password does not match"
-                })
+                });
             }
 
             model.getUserByFilter({
@@ -93,7 +95,7 @@ let userModule = {
                             errorCode : 409,
                             error: true,
                             errorInfo: "MAIL OR PSEUDO ALREADY USED"
-                        })
+                        });
                     }else{
                         bcrypt.hash(pwd,saltRounds).then((hash) => {
                             model.addUser({
@@ -107,20 +109,18 @@ let userModule = {
                                     errorCode : 201,
                                     error : false,
                                     users_id : elem.id
-                                })
-                            })
-                        })
+                                });
+                            });
+                        });
                     }
                 })
                 .catch((err)=>{
-                    reject(err);
-                })
-        })
+                    return reject(err);
+                });
+        });
 
     }
 
 };
-
-
 
 module.exports = userModule;

@@ -19,6 +19,13 @@ block content
                     label(for='last_name') Nom
             .row
                 .input-field.col.s12
+                    input#pseudo.validate(type='text', name='pseudo', value="#{pseudo || ''}")
+                    if noPseudo
+                        label.red-text(for='pseudo') Pseudo *
+                    else
+                        label(for='pseudo') Pseudo *
+            .row
+                .input-field.col.s12
                     input#email.validate(type='email', name='email', value="#{email || ''}")
                     if noMail
                         label.red-text(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
@@ -26,7 +33,7 @@ block content
                         label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email *
             .row
                 .input-field.col.s12
-                    input#confEmail.validate(type='email', name='confEmail', value="#{email || ''}")
+                    input#confEmail.validate(type='email', name='confEmail', value="#{confEmail || ''}")
                     label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Confirmer votre email *
             .row
                 .input-field.col.s12
@@ -35,7 +42,7 @@ block content
 
             .row
                 .input-field.col.s12
-                    input#confPasssword.validate(type='password', name='confPwd', value="#{pwd || ''}")
+                    input#confPasssword.validate(type='password', name='confPwd', value="#{confPwd || ''}")
                     label(for='confPasssword') Confirmer votre mot de passe *
 
             .row

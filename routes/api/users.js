@@ -46,17 +46,17 @@ router.get('/:id', function(req, res, next) {
  */
 router.post('/', function(req, res, next) {
 
-    console.log("ajout d'un utilisateur");
-    console.log(req.query);
-    // moduleUser.addUser(req.body.pseudo,req.body.firstName,req.body.lastName,
-    //     req.body.email,req.body.confEmail,req.body.pwd,req.body.confPwd)
-    //
-    //     .then((user)=>{
-    //         res.status(user.errorCode).json(user);
-    //     })
-    //     .catch((err)=>{
-    //         res.status(err.errorCode).json(err);
-    //     });
+    console.log("API ajout d'un utilisateur");
+    console.log(req.body);
+    moduleUser.addUser(req.body.pseudo,req.body.firstName,req.body.lastName,
+        req.body.email,req.body.confEmail,req.body.pwd,req.body.confPwd)
+
+        .then((user)=>{
+            res.status(user.errorCode).json(user);
+        })
+        .catch((err)=>{
+            res.status(err.errorCode).json(err);
+        });
 
 
 });
@@ -67,12 +67,12 @@ router.post('/', function(req, res, next) {
 router.post("/connection", function (req, res, next) {
 
     console.log(req.body);
-    moduleUser.connection(req.body.email, req.body.password)
+    moduleUser.connection(req.body.email, req.body.pwd)
         .then((user)=>{
-            res.status(user.errorCode).json(user);
+            return res.status(user.errorCode).json(user);
         })
         .catch((err)=>{
-            res.status(user.errorCode).json(err);
+            return res.status(err.errorCode).json(err);
         });
 
 

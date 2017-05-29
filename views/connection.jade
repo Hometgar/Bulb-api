@@ -7,22 +7,29 @@ block content
             .card-panel.orange.lighten-2.white-text Vous n'avez pas encore de compte ?
                 | Inscrivez vous&nbsp;
                 a(href='inscription') ici.
-    br
+    if error
+        .row
+            .col.s8.offset-l2
+                .card-panel.red.lighten-2.white-text #{error}
+
     br
     .row
         form.col.s8.offset-l2.white.hoverable(action='/connection', method='post')
             br
             .row
                 .input-field.col.s12
-                    input#email.validate(type='email', name='email', value="#{email || ''}")
-                    if noMail
-                        label.red-text(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email
+                    input#email.validate(type='text', name='email', value="#{email || ''}")
+                    if missingEmail
+                        label.red-text(for='email', data-success='Ok :)') Email ou pseudo
                     else
-                        label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email
+                        label(for='email', data-error='Veuillez saisir une adresse mail valide', data-success='Ok :)') Email ou pseudo
             .row
                 .input-field.col.s12
                     input#passsword.validate(type='password', name='pwd', value="#{pwd || ''}")
-                    label(for='passsword') Mot de passe
+                    if missingPwd
+                        label.red-text(for='passsword') Mot de passe
+                    else
+                        label(for='passsword') Mot de passe
             .row
                 .col.s12.center-align
                     button.btn.waves-effect.waves-light.green(type='submit', name='action')

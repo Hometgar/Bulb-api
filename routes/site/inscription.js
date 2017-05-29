@@ -17,6 +17,10 @@ router.get('/',function (req, res, next) {
  */
 router.post('/',function (req, res, next) {
 
+    if(!req.body.email || !req.body.confEmail || !req.body.pwd || !req.body.confPwd || !req.body.pseudo){
+        let params = {missingFields : true};
+        return res.render('inscription',params);
+    }
     console.log(req.body);
     moduleUser.addUser(req.body.pseudo,req.body.firstName,req.body.lastName,
                         req.body.email,req.body.confEmail,req.body.pwd,req.body.confPwd)
