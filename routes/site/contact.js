@@ -9,13 +9,11 @@ const fs = require('fs');
 const content = fs.readFileSync('./private/conf.json');
 const conf = JSON.parse(content)['mail'];
 
-
-
 /**
  * Affiche la page de contact
  */
 router.get('/',function (req, res, next) {
-    res.render('contacts',{title : 'contact'});
+    res.render('contacts',res.locals.pageVariables);
 });
 
 /**
@@ -23,20 +21,19 @@ router.get('/',function (req, res, next) {
  */
 router.post('/',function (req, res, next) {
 
-    let variables = {
-        title : 'Contact'
-    };
+    //TODO Refacto à faire !
+    console.log(res.locals.pageVariables);
 
-    variables.noMessage = req.body.message.trim().length == 0;
-    variables.noMail = req.body.email.trim().length == 0;
+    res.locals.pageVariables.noMessage = req.body.message.trim().length == 0;
+    res.locals.pageVariables.noMail = req.body.email.trim().length == 0;
 
-    variables.message = req.body.message;
-    variables.first_name = req.body.first_name;
-    variables.last_name = req.body.last_name;
-    variables.email = req.body.email;
+    res.locals.pageVariables.message = req.body.message;
+    res.locals.pageVariables.first_name = req.body.first_name;
+    res.locals.pageVariables.last_name = req.body.last_name;
+    res.locals.pageVariables.email = req.body.email;
 
-    if(variables.noMail || variables.noMessage) {
-        return res.render('contacts',variables);
+    if(res.locals.pageVariables.noMail || res.locals.pageVariables.noMessage) {
+        return res.render('contacts',res.locals.pageVariables);
     }
 
 
@@ -56,7 +53,8 @@ router.post('/',function (req, res, next) {
 
         if (error) {
             console.log(error);
-            errorSend(res,variables);
+            res.locals.pageVariables.noSendedError = "Une erreur est survenue lors de l'envoie du mail :( Veuillez réessayer";
+            return res.render('contacts',res.locals.pageVariables);
         } else {
 
             var mail = {
@@ -76,14 +74,13 @@ router.post('/',function (req, res, next) {
                     console.log('Erreur lors de l\'envoie du mail!');
                     console.log(error);
                     transporter.close();
-                    errorSend(res,variables);
+                    errorSend(res);
                 }else{
                     console.log('Mail envoyé avec succès!')
                     transporter.close();
-                    return res.render('contacts',{
-                        sended : "Votre message a bien été envoyé, Merci :) !",
-                        title : variables.title
-                    });
+                    res.locals.pageVariables.seneded = "Votre message a bien été envoyé, Merci :) !";
+                    console.log(res.locals)
+                    return res.render('contacts',res.locals.pageVariables);
                 }
 
             });
@@ -92,9 +89,9 @@ router.post('/',function (req, res, next) {
 
 });
 
-function errorSend(res,variables) {
-    variables.noSendedError = "Une erreur est survenue lors de l'envoie du mail :( Veuillez réessayer";
-    return res.render('contacts',variables);
+function errorSend(res) {
+    res.locals.pageVariables.noSendedError = "Une erreur est survenue lors de l'envoie du mail :( Veuillez réessayer";
+    return res.render('contacts',res.locals.pageVariables);
 }
 
 

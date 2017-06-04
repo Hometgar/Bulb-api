@@ -2,15 +2,21 @@ extends layout/header
 block content
     br
     br
-    .row
-        .col.s8.offset-l2
-            .card-panel.orange.lighten-2.white-text Vous n'avez pas encore de compte ?
-                | Inscrivez vous&nbsp;
-                a(href='inscription') ici.
+    if userRegistered
+        .row
+            .col.s8.offset-l2
+                .card-panel.green.lighten-2.white-text Vous pouvez désormais vous connecter
+    else
+        .row
+            .col.s8.offset-l2
+                .card-panel.orange.lighten-2.white-text Vous n'avez pas encore de compte ?
+                    | Inscrivez vous&nbsp;
+                    a(href='inscription') ici.
     if error
         .row
             .col.s8.offset-l2
                 .card-panel.red.lighten-2.white-text #{error}
+    br
     .row
         form.col.s8.offset-l2.white.hoverable(action='/connection', method='post')
             br
@@ -39,3 +45,10 @@ block content
                         i.material-icons.right replay
     br
     br
+
+    style.
+        footer {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+        }

@@ -6,4 +6,5 @@ module.exports = (app)=>{
   app.use('/contact',require('./site/contact'));
   app.use('/inscription',require('./site/inscription'));
   app.use('/connection',require('./site/connection'));
+  app.use('/logout',require('./site/logout'));
 };

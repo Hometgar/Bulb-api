@@ -3,6 +3,14 @@ block content
    br
    br
    br
+   if firstConnection
+      .row
+         .col.s8.offset-l2
+            .card-panel.green.lighten-2.white-text Bienvenue #{user.pseudo}
+   if logout
+      .row
+         .col.s8.offset-l2
+            .card-panel.green.lighten-2.white-text Vous avez bien été déconnecté
    .container
       .row.center
             h2.center-align.light-blue-text Bulb

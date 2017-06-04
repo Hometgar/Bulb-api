@@ -25,7 +25,15 @@ html(lang='en')
                         a(href='plugins') Plugins
                     li
                         a(href='changelog') Changelog
-                    li
-                        a(href='connection') Se connecter
+
+                    if user
+                        include drop_down_menu
+                        li
+                            a.dropdown-button(href='#!', data-activates='dropdown1')
+                                | #{user.pseudo}
+                                i.material-icons.right arrow_drop_down
+                    else
+                        li
+                            a(href='connection') Se connecter
         block content
         include footer

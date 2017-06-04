@@ -1,36 +1,26 @@
 var express = require('express');
 var router = express.Router();
 
-
 /**
  * Page d'accueil
  */
 router.get('/',function (req, res, next) {
-    let variables = {
-        title: 'Home',
-        css: 'stylesheets/home.css'
-    };
-    res.type('html');
-    res.render('home',variables);
+    console.log(res.locals);
+    res.render('home',res.locals.pageVariables);
 });
 
 /**
  * Page A propos
  */
 router.get('/propos',function (req, res, next) {
-    res.type('html');
-
-    let variables = {
-        title: 'A propos',
-        css: 'stylesheets/propos.css'
-    };
-    res.render('propos',variables);
+    res.render('propos',res.locals.pageVariables);
 });
 
 /**
  * Telechargement de bulb
  */
 router.get('/download',function (req, res, next) {
+    console.log(res.locals)
 
 });
 

@@ -27,9 +27,7 @@ let userModule = {
                                 return resolve({
                                     errorCode : 200,
                                     error : false,
-                                    users_id : user.id,
-                                    user_mail : user.mail,
-                                    user_pseudo : user.pseudo
+                                    user : user
                                 })
                             }
                             else{
