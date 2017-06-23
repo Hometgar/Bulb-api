@@ -1,6 +1,5 @@
 let model = require('../../../models/Users');
 let bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 let userModule = {
     connection: (email, pwd)=>{
@@ -95,18 +94,26 @@ let userModule = {
                             errorInfo: "MAIL OR PSEUDO ALREADY USED"
                         });
                     }else{
-                        bcrypt.hash(pwd,saltRounds).then((hash) => {
-                            model.addUser({
-                                pseudo : pseudo,
-                                lastName : lastName,
-                                firstName : firstName,
-                                mail : email,
-                                password : hash
-                            }).then((elem) => {
-                                return resolve({
-                                    errorCode : 201,
-                                    error : false,
-                                    users_id : elem.id
+                        bcrypt.genSalt((err, salt) => {
+                            if(err){
+                                return res.status(500).json({
+                                    error: true,
+                                    errorInfos: "ERROR SERVER"
+                                })
+                            }
+                            bcrypt.hash(pwd,salt).then((hash) => {
+                                model.addUser({
+                                    pseudo : pseudo,
+                                    lastName : lastName,
+                                    firstName : firstName,
+                                    mail : email,
+                                    password : hash
+                                }).then((elem) => {
+                                    return resolve({
+                                        errorCode : 201,
+                                        error : false,
+                                        users_id : elem.id
+                                    });
                                 });
                             });
                         });

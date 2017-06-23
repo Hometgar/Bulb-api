@@ -10,7 +10,12 @@ const CSS_BOTTOM_FOOTER = 'stylesheets/bottomFooter.css';
 
 module.exports = {
 
-    // Renseigne le nom de la page + css
+    /**
+     * @param req
+     * @param res
+     * @param next
+     * @description  Renseigne le nom de la page + css
+     */
     pageSetting:function(req,res,next) {
 
         switch(req.url) {
@@ -54,11 +59,10 @@ module.exports = {
     },
 
     /**
-     *
      * @param req
      * @param res
      * @param next
-     * @description Permet la gestion de la gestion et de la transmission d'information d'une route à une autre.
+     * @description Permet la gestion de la session et de la transmission d'information d'une route à une autre.
      */
      sessionSetting: function (req, res, next) {
 
