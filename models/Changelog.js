@@ -51,7 +51,7 @@ const model = db.define('changelog', {
         }
     });
 
-model.sync({force : true});
+model.sync();
 
 module.exports = {
     "getChangelog":function(offset){
